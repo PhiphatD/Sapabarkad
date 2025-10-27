@@ -4,14 +4,16 @@ import ForecastBox from './components/ForecastBox'
 import LayerControls from './components/LayerControls'
 import SearchBar from './components/SearchBar'
 import ApiKeyBanner from './components/ApiKeyBanner'
+import AqiBox from './components/AqiBox'
 import { getOWMApiKey } from './utils/owmKey'
 
 function App() {
   const [position, setPosition] = useState([13.7563, 100.5018])
   const [forecast, setForecast] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeLayers, setActiveLayers] = useState({ clouds: false, precipitation: false })
+  const [activeLayers, setActiveLayers] = useState({ clouds: false, precipitation: false, temperature: false })
   const [apiKey, setApiKey] = useState(getOWMApiKey())
+  const [aqiData, setAqiData] = useState(null)
 
   const fetchForecast = async (lat, lon) => {
     setIsLoading(true)
@@ -58,6 +60,23 @@ function App() {
     setIsLoading(false)
   }
 
+  const fetchAqi = async (lat, lon) => {
+    if (!apiKey) return
+    try {
+      const url = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`
+      const res = await fetch(url)
+      const data = await res.json()
+      if (Array.isArray(data?.list) && data.list.length > 0) {
+        setAqiData(data.list[0])
+      } else {
+        setAqiData(null)
+      }
+    } catch (err) {
+      console.error('AQI Fetch Error:', err)
+      setAqiData(null)
+    }
+  }
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -72,8 +91,15 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (position) {
+    if (!position) return
+    const handler = setTimeout(() => {
+      console.log('Debounce: OK! Fetching data now...')
       fetchForecast(position[0], position[1])
+      fetchAqi(position[0], position[1])
+    }, 1000)
+    return () => {
+      console.log('Debounce: Cancelling previous fetch...')
+      clearTimeout(handler)
     }
   }, [position])
 
@@ -81,17 +107,23 @@ function App() {
     // เมื่อคีย์เปลี่ยน ถ้ามีตำแหน่งอยู่แล้ว ให้ดึงข้อมูลใหม่
     if (apiKey && position) {
       fetchForecast(position[0], position[1])
+      fetchAqi(position[0], position[1])
     }
   }, [apiKey])
 
   const toggleClouds = () => {
-    setActiveLayers((prev) => ({ clouds: !prev.clouds, precipitation: false }))
-    console.log('Clouds toggled (exclusive)!')
+    setActiveLayers((prev) => ({ ...prev, clouds: !prev.clouds }))
+    console.log('Clouds toggled')
   }
 
   const togglePrecipitation = () => {
-    setActiveLayers((prev) => ({ clouds: false, precipitation: !prev.precipitation }))
-    console.log('Precipitation toggled (exclusive)!')
+    setActiveLayers((prev) => ({ ...prev, precipitation: !prev.precipitation }))
+    console.log('Precipitation toggled')
+  }
+
+  const toggleTemperature = () => {
+    setActiveLayers((prev) => ({ ...prev, temperature: !prev.temperature }))
+    console.log('Temperature toggled')
   }
 
   return (
@@ -100,10 +132,12 @@ function App() {
       <ApiKeyBanner apiKey={apiKey} onSetApiKey={setApiKey} />
       <MapWrapper center={position} activeLayers={activeLayers} apiKey={apiKey} setPosition={setPosition} />
       <ForecastBox forecast={forecast} isLoading={isLoading} apiKey={apiKey} />
+      <AqiBox aqiData={aqiData} apiKey={apiKey} />
       <LayerControls
         activeLayers={activeLayers}
         onToggleClouds={toggleClouds}
         onTogglePrecipitation={togglePrecipitation}
+        onToggleTemperature={toggleTemperature}
         disabled={!apiKey}
       />
     </div>

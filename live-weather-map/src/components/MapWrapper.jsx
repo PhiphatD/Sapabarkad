@@ -1,6 +1,12 @@
 import { MapContainer, TileLayer, useMap, CircleMarker, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
+// สร้าง "ขอบเขต" ของโลก (ไม่ให้เลื่อนหลุด)
+const worldBounds = L.latLngBounds(
+  L.latLng(-90, -180), // มุมล่าง-ซ้าย
+  L.latLng(90, 180)    // มุมบน-ขวา
+);
+
 // แผนที่ฐาน (Dark Mode) จาก CARTO
 const darkMapUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const darkMapAttribution =
@@ -12,6 +18,11 @@ function buildCloudUrl(apiKey) {
 }
 function buildPrecipUrl(apiKey) {
   return `https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`
+}
+
+function buildTempUrl(apiKey) {
+  // ใช้ชื่อเลเยอร์ที่ถูกต้องจาก OWM: temp_new
+  return `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${apiKey}`
 }
 
 function ChangeMapView({ center }) {
@@ -33,8 +44,11 @@ function RadarPulse({ position }) {
 function ClickManager({ setPosition }) {
   useMapEvents({
     click(e) {
-      // อัปเดตตำแหน่งหลักใน App.jsx เมื่อมีการคลิกบนแผนที่
-      setPosition([e.latlng.lat, e.latlng.lng]);
+      // แปลงพิกัดให้อยู่ในช่วงที่ถูกต้อง (-180..180)
+      const wrappedLatLng = e.latlng.wrap();
+      console.log('Map clicked at:', e.latlng, 'Wrapped to:', wrappedLatLng);
+      // อัปเดตตำแหน่งหลักใน App.jsx ด้วยพิกัดที่แปลงแล้ว
+      setPosition([wrappedLatLng.lat, wrappedLatLng.lng]);
     },
   });
   return null;
@@ -48,9 +62,23 @@ function MapWrapper({ center, activeLayers, apiKey, setPosition }) {
       zoomControl={false}
       attributionControl={false}
       style={{ width: '100vw', height: '100vh' }}
+      minZoom={3}
+      maxBounds={worldBounds}
+      maxBoundsViscosity={1.0}
+      worldCopyJump={true}
     >
       {/* 1. แผนที่ฐาน Dark Mode (อยู่ตลอด) */}
       <TileLayer url={darkMapUrl} attribution={darkMapAttribution} />
+
+      {/* เลเยอร์อุณหภูมิ: อยู่ล่างสุดเหนือ Base map */}
+      {activeLayers?.temperature && apiKey && (
+        <TileLayer
+          url={buildTempUrl(apiKey)}
+          attribution="&copy; OpenWeatherMap"
+          opacity={0.5}
+          zIndex={1}
+        />
+      )}
 
       {/* 2. เลเยอร์เมฆ: แสดงเมื่อ activeLayers.clouds เป็น true */}
       {activeLayers?.clouds && apiKey && (
