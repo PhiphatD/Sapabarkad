@@ -4,7 +4,6 @@ import ForecastBox from './components/ForecastBox'
 import LayerControls from './components/LayerControls'
 import SearchBar from './components/SearchBar'
 import ApiKeyBanner from './components/ApiKeyBanner'
-import AqiBox from './components/AqiBox'
 import { getOWMApiKey } from './utils/owmKey'
 
 function App() {
@@ -131,8 +130,7 @@ function App() {
       <SearchBar onSelectPosition={setPosition} apiKey={apiKey} />
       <ApiKeyBanner apiKey={apiKey} onSetApiKey={setApiKey} />
       <MapWrapper center={position} activeLayers={activeLayers} apiKey={apiKey} setPosition={setPosition} />
-      <ForecastBox forecast={forecast} isLoading={isLoading} apiKey={apiKey} />
-      <AqiBox aqiData={aqiData} apiKey={apiKey} />
+      <ForecastBox forecast={forecast} aqiData={aqiData} isLoading={isLoading} apiKey={apiKey} />
       <LayerControls
         activeLayers={activeLayers}
         onToggleClouds={toggleClouds}

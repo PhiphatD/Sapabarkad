@@ -63,7 +63,18 @@ function normalizeForecast(forecast) {
   return null
 }
 
-function ForecastBox({ forecast, isLoading, apiKey }) {
+function aqiText(aqi) {
+  switch (aqi) {
+    case 1: return 'ดี (Good)'
+    case 2: return 'พอใช้ (Fair)'
+    case 3: return 'ปานกลาง (Moderate)'
+    case 4: return 'แย่ (Poor)'
+    case 5: return 'แย่มาก (Very Poor)'
+    default: return 'ไม่ทราบ'
+  }
+}
+
+function ForecastBox({ forecast, aqiData, isLoading, apiKey }) {
   // Live Clock state
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -141,6 +152,27 @@ function ForecastBox({ forecast, isLoading, apiKey }) {
       </div>
 
       <hr />
+
+      {aqiData && (
+        <div className="aqi-section">
+          <div className="aqi-header">
+            <span className="aqi-title">คุณภาพอากาศ (AQI)</span>
+          </div>
+          <div className="aqi-top">
+            <div className={`aqi-chip aqi-${aqiData.main.aqi}`}>AQI {aqiData.main.aqi}: {aqiText(aqiData.main.aqi)}</div>
+          </div>
+          <div className="aqi-details">
+            <div className="metric">
+              <span className="metric-value">{Math.round(aqiData.components.pm2_5)}</span>
+              <span className="metric-label">PM2.5</span>
+            </div>
+            <div className="metric">
+              <span className="metric-value">{Math.round(aqiData.components.pm10)}</span>
+              <span className="metric-label">PM10</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ul className="daily-list">
         {Array.isArray(f.daily) && f.daily.slice(1, 6).map((day, idx) => {
