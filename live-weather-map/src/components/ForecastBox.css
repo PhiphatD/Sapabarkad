@@ -91,3 +91,35 @@
 .daily-list .temp-min {
   color: #aaa;
 }
+
+/* Live Clock and Sun Times */
+.live-clock {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #a0cfff; /* สีฟ้าสว่างๆ */
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.sun-times {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px 0 5px 0;
+  text-align: center;
+}
+
+.sun-times div {
+  display: flex;
+  flex-direction: column;
+}
+
+.sun-times span {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.sun-times strong {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}

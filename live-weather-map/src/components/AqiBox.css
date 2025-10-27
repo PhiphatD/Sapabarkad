@@ -1,7 +1,7 @@
 .aqi-box {
   position: fixed;
-  left: 16px;
-  bottom: 16px;
+  right: 20px;
+  bottom: 20px;
   background: rgba(22, 25, 32, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #e9eef7;
@@ -10,7 +10,7 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.35);
   backdrop-filter: blur(6px);
   z-index: 1000;
-  min-width: 220px;
+  width: 320px; /* ให้กว้างเท่ากับ ForecastBox */
 }
 
 .aqi-box h4 {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import './ForecastBox.css'
 
 function normalizeForecast(forecast) {
@@ -11,6 +12,8 @@ function normalizeForecast(forecast) {
         temp: forecast.current.temp ?? 0,
         feels_like: forecast.current.feels_like ?? 0,
         weather: forecast.current.weather,
+        sunrise: forecast.current.sunrise,
+        sunset: forecast.current.sunset,
       },
       daily: forecast.daily,
     }
@@ -23,6 +26,8 @@ function normalizeForecast(forecast) {
       temp: forecast.current.main?.temp ?? 0,
       feels_like: forecast.current.main?.feels_like ?? 0,
       weather: curWeather,
+      sunrise: forecast.current.sys?.sunrise,
+      sunset: forecast.current.sys?.sunset,
     }
     // Group 3-hourly items into daily summary
     const list = forecast.forecast5d.list || []
@@ -59,6 +64,16 @@ function normalizeForecast(forecast) {
 }
 
 function ForecastBox({ forecast, isLoading, apiKey }) {
+  // Live Clock state
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+    return () => clearInterval(timerId)
+  }, [])
+
   if (isLoading) {
     return <div className="forecast-box">Loading...</div>
   }
@@ -71,13 +86,35 @@ function ForecastBox({ forecast, isLoading, apiKey }) {
     return <div className="forecast-box">No forecast data available.</div>
   }
 
+  // Timezone string from API 3.0 (if available)
+  const timezone = forecast?.timezone
+  const liveTime = currentTime.toLocaleTimeString('en-US', {
+    timeZone: timezone || undefined,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+
   const iconCurrent = f.current.weather?.[0]?.icon
   const descCurrent = f.current.weather?.[0]?.description || ''
   const mainCurrent = f.current.weather?.[0]?.main || ''
+  const sunriseTime = f.current.sunrise
+    ? new Date(f.current.sunrise * 1000).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'N/A'
+  const sunsetTime = f.current.sunset
+    ? new Date(f.current.sunset * 1000).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'N/A'
 
   return (
     <div className="forecast-box">
       <h3>{f.label}</h3>
+      <div className="live-clock">{liveTime}</div>
       <div className="current-weather">
         {iconCurrent && (
           <img
@@ -91,6 +128,17 @@ function ForecastBox({ forecast, isLoading, apiKey }) {
         </div>
       </div>
       <p>{mainCurrent}</p>
+
+      <div className="sun-times">
+        <div>
+          <span>☀️ Sunrise</span>
+          <strong>{sunriseTime}</strong>
+        </div>
+        <div>
+          <span>🌅 Sunset</span>
+          <strong>{sunsetTime}</strong>
+        </div>
+      </div>
 
       <hr />
 
