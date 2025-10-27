@@ -1,26 +1,15 @@
-import { useState } from 'react'
 import './LayerControls.css'
 
-function LayerControls({ onToggleClouds, onTogglePrecipitation }) {
-  const [isCloudsActive, setIsCloudsActive] = useState(false)
-  const [isPrecipActive, setIsPrecipActive] = useState(false)
-
-  const handleCloudsClick = () => {
-    setIsCloudsActive((v) => !v)
-    if (onToggleClouds) onToggleClouds()
-  }
-
-  const handlePrecipClick = () => {
-    setIsPrecipActive((v) => !v)
-    if (onTogglePrecipitation) onTogglePrecipitation()
-  }
+function LayerControls({ activeLayers, onToggleClouds, onTogglePrecipitation }) {
+  const isCloudsActive = !!activeLayers?.clouds
+  const isPrecipActive = !!activeLayers?.precipitation
 
   return (
     <div className="layer-controls">
-      <button className={`layer-btn ${isCloudsActive ? 'active' : ''}`} onClick={handleCloudsClick}>
+      <button className={`layer-btn ${isCloudsActive ? 'active' : ''}`} onClick={onToggleClouds}>
         ☁️ Clouds
       </button>
-      <button className={`layer-btn ${isPrecipActive ? 'active' : ''}`} onClick={handlePrecipClick}>
+      <button className={`layer-btn ${isPrecipActive ? 'active' : ''}`} onClick={onTogglePrecipitation}>
         🌧️ Precipitation
       </button>
     </div>

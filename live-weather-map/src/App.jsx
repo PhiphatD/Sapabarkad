@@ -70,20 +70,24 @@ function App() {
   }, [position])
 
   const toggleClouds = () => {
-    setActiveLayers((prev) => ({ ...prev, clouds: !prev.clouds }))
-    console.log('Clouds toggled!')
+    setActiveLayers((prev) => ({ clouds: !prev.clouds, precipitation: false }))
+    console.log('Clouds toggled (exclusive)!')
   }
 
   const togglePrecipitation = () => {
-    setActiveLayers((prev) => ({ ...prev, precipitation: !prev.precipitation }))
-    console.log('Precipitation toggled!')
+    setActiveLayers((prev) => ({ clouds: false, precipitation: !prev.precipitation }))
+    console.log('Precipitation toggled (exclusive)!')
   }
 
   return (
     <div className="App">
       <MapWrapper center={position} activeLayers={activeLayers} />
       <ForecastBox forecast={forecast} isLoading={isLoading} />
-      <LayerControls onToggleClouds={toggleClouds} onTogglePrecipitation={togglePrecipitation} />
+      <LayerControls
+        activeLayers={activeLayers}
+        onToggleClouds={toggleClouds}
+        onTogglePrecipitation={togglePrecipitation}
+      />
     </div>
   )
 }
