@@ -35,3 +35,14 @@
   color: white;
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
+
+.layer-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.layer-note {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 4px;
+}

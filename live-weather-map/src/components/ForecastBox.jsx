@@ -58,13 +58,16 @@ function normalizeForecast(forecast) {
   return null
 }
 
-function ForecastBox({ forecast, isLoading }) {
+function ForecastBox({ forecast, isLoading, apiKey }) {
   if (isLoading) {
     return <div className="forecast-box">Loading...</div>
   }
 
   const f = normalizeForecast(forecast)
   if (!f) {
+    if (!apiKey) {
+      return <div className="forecast-box">กรุณาใส่ API key เพื่อดึงข้อมูลพยากรณ์</div>
+    }
     return <div className="forecast-box">No forecast data available.</div>
   }
 

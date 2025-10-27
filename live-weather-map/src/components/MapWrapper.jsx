@@ -1,17 +1,18 @@
 import { MapContainer, TileLayer, useMap, CircleMarker, Marker } from 'react-leaflet';
 import L from 'leaflet';
 
-// ดึง API Key ของ OpenWeatherMap สำหรับ Weather Maps Tiles
-const API_KEY = import.meta.env.VITE_OWM_API_KEY;
-
 // แผนที่ฐาน (Dark Mode) จาก CARTO
 const darkMapUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 const darkMapAttribution =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// URL ของเลเยอร์เมฆและฝนจาก OpenWeatherMap Weather Maps 1.0
-const cloudLayerUrl = `https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${API_KEY}`;
-const precipitationLayerUrl = `https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`;
+// สร้าง URL ของเลเยอร์เมฆและฝนจาก OpenWeatherMap Weather Maps 1.0 ตามคีย์ที่รับมา
+function buildCloudUrl(apiKey) {
+  return `https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${apiKey}`
+}
+function buildPrecipUrl(apiKey) {
+  return `https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${apiKey}`
+}
 
 function ChangeMapView({ center }) {
   const map = useMap();
@@ -29,7 +30,7 @@ function RadarPulse({ position }) {
   return <Marker position={position} icon={pulseIcon} interactive={false} />;
 }
 
-function MapWrapper({ center, activeLayers }) {
+function MapWrapper({ center, activeLayers, apiKey }) {
   return (
     <MapContainer
       center={center}
@@ -42,9 +43,9 @@ function MapWrapper({ center, activeLayers }) {
       <TileLayer url={darkMapUrl} attribution={darkMapAttribution} />
 
       {/* 2. เลเยอร์เมฆ: แสดงเมื่อ activeLayers.clouds เป็น true */}
-      {activeLayers?.clouds && (
+      {activeLayers?.clouds && apiKey && (
         <TileLayer
-          url={cloudLayerUrl}
+          url={buildCloudUrl(apiKey)}
           attribution="&copy; OpenWeatherMap"
           opacity={0.6}
           zIndex={2}
@@ -52,9 +53,9 @@ function MapWrapper({ center, activeLayers }) {
       )}
 
       {/* 3. เลเยอร์ฝน: แสดงเมื่อ activeLayers.precipitation เป็น true */}
-      {activeLayers?.precipitation && (
+      {activeLayers?.precipitation && apiKey && (
         <TileLayer
-          url={precipitationLayerUrl}
+          url={buildPrecipUrl(apiKey)}
           attribution="&copy; OpenWeatherMap"
           opacity={0.8}
           zIndex={3}

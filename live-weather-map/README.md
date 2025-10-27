@@ -1,16 +1,65 @@
-# React + Vite
+# Live Weather Map (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+แอปแผนที่สภาพอากาศแบบเรียลไทม์ ใช้ React, Vite และ Leaflet พร้อมฟังก์ชันค้นหาเมือง, แสดงพยากรณ์, และสลับเลเยอร์เมฆ/ฝนจาก OpenWeatherMap
 
-Currently, two official plugins are available:
+## ฟีเจอร์หลัก
+- ค้นหาชื่อเมืองและบินไปยังพิกัด (`SearchBar`)
+- แสดงพยากรณ์ปัจจุบันและ 5 วันข้างหน้า (`ForecastBox`)
+- สลับเลเยอร์เมฆ/ฝน (ต้องมี API key) (`LayerControls` + `MapWrapper`)
+- รองรับการใส่ API key ผ่าน UI ถ้าไม่มีไฟล์ env (`ApiKeyBanner`)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## การตั้งค่าและการรัน
+1) ติดตั้งแพ็กเกจ
 
-## React Compiler
+```bash
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2) ตั้งค่า API key (เลือกวิธีใดวิธีหนึ่ง)
+- วิธี A: สร้างไฟล์ `.env.local` ในโฟลเดอร์ `live-weather-map` แล้วใส่:
 
-## Expanding the ESLint configuration
+```
+VITE_OWM_API_KEY=YOUR_OPENWEATHERMAP_KEY
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- วิธี B: รันแอป แล้วกรอกคีย์ในแบนเนอร์ด้านบน (เก็บใน `localStorage`)
+
+3) รัน dev server
+
+```bash
+npm run dev
+```
+
+เปิด `http://localhost:5173/`
+
+## โครงสร้างที่เกี่ยวข้อง
+- `src/App.jsx`: จัดการสถานะตำแหน่ง, พยากรณ์, คีย์ API, และประกอบ UI
+- `src/components/MapWrapper.jsx`: แผนที่, จุดตำแหน่ง, และเลเยอร์เมฆ/ฝน (ใช้คีย์จากพร็อพ)
+- `src/components/ForecastBox.jsx`: แสดงผลพยากรณ์ รองรับ One Call 3.0 และ fallback 2.5
+- `src/components/SearchBar.jsx`: ค้นหาชื่อเมืองด้วย OWM Geocoding API
+- `src/components/LayerControls.jsx`: ปุ่มสลับเลเยอร์ พร้อมสถานะ disabled เมื่อไม่มีคีย์
+- `src/components/ApiKeyBanner.jsx`: กล่องกรอก/บันทึก API key
+- `src/utils/owmKey.js`: ยูทิลอ่าน/เขียนคีย์จาก env หรือ localStorage
+
+## การทดสอบการใช้งานจริง
+- ค้นหาเมือง เช่น `Bangkok`, `Tokyo`, `London` → แผนที่บินไปยังตำแหน่งนั้น และโหลดพยากรณ์
+- เปิดปุ่ม `Clouds` หรือ `Precipitation` เมื่อใส่คีย์แล้ว → เห็นเลเยอร์จาก OWM บนแผนที่
+- ปิด/เปิดปุ่มสลับทีละอัน (ป้องกันเปิดพร้อมกัน)
+- กรณีไม่มีคีย์ → ปุ่มเลเยอร์จะถูก disable และ ForecastBox จะแจ้งเตือนตามผลการเรียก API
+
+## ข้อผิดพลาดที่คาดพบและแนวทางแก้
+- `No forecast data available` → ตรวจว่าใส่คีย์ถูกต้อง/เครือข่ายไม่บล็อก OWM
+- `401 Unauthorized` จาก One Call 3.0 → ระบบจะ fallback ไป API ฟรี (`/weather` + `/forecast`)
+- Tile ของ OWM ไม่ขึ้น → ตรวจคีย์หรือ rate limit, ปรับลดการสลับเลเยอร์ถี่ ๆ
+
+## การเข้ากันได้
+- ทำงานบน Vite dev server (`Node >= 18` แนะนำ)
+- ใช้ Leaflet 1.9.x และ React 19.x
+- ต้องมีการเชื่อมต่อ `api.openweathermap.org` สำหรับข้อมูลพยากรณ์และ Geocoding
+
+## License & Attribution
+- Base map: CARTO + OpenStreetMap (ดูเครดิตในตัวแผนที่)
+- Weather layers: OpenWeatherMap (ต้องมี API key)
+
+## ประวัติการอัปเดต
+- v0.1.0: เพิ่ม UI ใส่ API key, ปรับใช้คีย์แบบไดนามิก, เพิ่ม SearchBar, ปรับเลเยอร์ให้ใช้คีย์จากพร็อพ, ปุ่มเลเยอร์รองรับ disabled, ปรับเอกสาร
