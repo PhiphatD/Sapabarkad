@@ -32,11 +32,21 @@ export default function AqiBox({ aqiData, apiKey }) {
 
   return (
     <div className="aqi-box">
-      <h4>คุณภาพอากาศ (AQI)</h4>
-      <div className={`aqi-chip aqi-${aqiIndex}`}>AQI {aqiIndex}: {aqiText(aqiIndex)}</div>
+      <div className="aqi-header">
+        <span className="aqi-title">คุณภาพอากาศ (AQI)</span>
+      </div>
+      <div className="aqi-top">
+        <div className={`aqi-chip aqi-${aqiIndex}`}>AQI {aqiIndex}: {aqiText(aqiIndex)}</div>
+      </div>
       <div className="aqi-details">
-        <span>PM2.5: {Math.round(pm25)}</span>
-        <span>PM10: {Math.round(pm10)}</span>
+        <div className="metric">
+          <span className="metric-label">PM2.5</span>
+          <span className="metric-value">{Math.round(pm25)} µg/m³</span>
+        </div>
+        <div className="metric">
+          <span className="metric-label">PM10</span>
+          <span className="metric-value">{Math.round(pm10)} µg/m³</span>
+        </div>
       </div>
     </div>
   )
