@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import MapWrapper from './components/MapWrapper'
 import ForecastBox from './components/ForecastBox'
 import LayerControls from './components/LayerControls'
+import SearchBar from './components/SearchBar'
 
 const API_KEY = import.meta.env.VITE_OWM_API_KEY
 
@@ -81,6 +82,7 @@ function App() {
 
   return (
     <div className="App">
+      <SearchBar onSelectPosition={setPosition} />
       <MapWrapper center={position} activeLayers={activeLayers} />
       <ForecastBox forecast={forecast} isLoading={isLoading} />
       <LayerControls
