@@ -98,7 +98,7 @@ function App() {
     <div className="App">
       <SearchBar onSelectPosition={setPosition} apiKey={apiKey} />
       <ApiKeyBanner apiKey={apiKey} onSetApiKey={setApiKey} />
-      <MapWrapper center={position} activeLayers={activeLayers} apiKey={apiKey} />
+      <MapWrapper center={position} activeLayers={activeLayers} apiKey={apiKey} setPosition={setPosition} />
       <ForecastBox forecast={forecast} isLoading={isLoading} apiKey={apiKey} />
       <LayerControls
         activeLayers={activeLayers}

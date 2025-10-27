@@ -8,8 +8,8 @@ function normalizeForecast(forecast) {
       label:
         (forecast.timezone && forecast.timezone.split('/')[1]) || 'Your Location',
       current: {
-        temp: forecast.current.temp,
-        feels_like: forecast.current.feels_like,
+        temp: forecast.current.temp ?? 0,
+        feels_like: forecast.current.feels_like ?? 0,
         weather: forecast.current.weather,
       },
       daily: forecast.daily,
@@ -20,8 +20,8 @@ function normalizeForecast(forecast) {
     const label = forecast.current.name || 'Your Location'
     const curWeather = forecast.current.weather || []
     const current = {
-      temp: forecast.current.main?.temp,
-      feels_like: forecast.current.main?.feels_like,
+      temp: forecast.current.main?.temp ?? 0,
+      feels_like: forecast.current.main?.feels_like ?? 0,
       weather: curWeather,
     }
     // Group 3-hourly items into daily summary
@@ -30,8 +30,8 @@ function normalizeForecast(forecast) {
     list.forEach((entry) => {
       const d = new Date(entry.dt * 1000)
       const key = d.toISOString().slice(0, 10)
-      const tmax = entry.main?.temp_max ?? entry.main?.temp
-      const tmin = entry.main?.temp_min ?? entry.main?.temp
+      const tmax = entry.main?.temp_max ?? entry.main?.temp ?? 0
+      const tmin = entry.main?.temp_min ?? entry.main?.temp ?? 0
       if (!byDay[key]) {
         byDay[key] = {
           dt: entry.dt,

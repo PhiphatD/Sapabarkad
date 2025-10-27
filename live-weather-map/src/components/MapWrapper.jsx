@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, useMap, CircleMarker, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap, CircleMarker, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
 // แผนที่ฐาน (Dark Mode) จาก CARTO
@@ -30,7 +30,17 @@ function RadarPulse({ position }) {
   return <Marker position={position} icon={pulseIcon} interactive={false} />;
 }
 
-function MapWrapper({ center, activeLayers, apiKey }) {
+function ClickManager({ setPosition }) {
+  useMapEvents({
+    click(e) {
+      // อัปเดตตำแหน่งหลักใน App.jsx เมื่อมีการคลิกบนแผนที่
+      setPosition([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
+}
+
+function MapWrapper({ center, activeLayers, apiKey, setPosition }) {
   return (
     <MapContainer
       center={center}
@@ -74,6 +84,9 @@ function MapWrapper({ center, activeLayers, apiKey }) {
 
       {/* บินไปยังตำแหน่งใหม่เมื่อ center เปลี่ยน */}
       <ChangeMapView center={center} />
+
+      {/* ดักจับการคลิกบนแผนที่แล้วส่งตำแหน่งกลับขึ้นไป */}
+      {typeof setPosition === 'function' && <ClickManager setPosition={setPosition} />}
     </MapContainer>
   );
 }
